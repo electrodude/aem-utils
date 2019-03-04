@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ "$(realpath -s "$1")" = "$(realpath "$2")" ]; then
+	# TODO: message only appropriate if $2 is actually a symlink
+	#echo "removing "$(realpath -s "$1")" would break "$(realpath -s "$2")" -> $(realpath "$2")"
+	echo "error: $1 and $2 are the same file"
+	exit 1
+fi
+
+diff -sq "$1" "$2" && rm -i "$1"

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+[[ "$(stat -c%i $(readlink -f $1))" -eq "$(stat -c%i $(readlink -f $2))" ]]

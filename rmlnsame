@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "$(realpath -s "$1")" = "$(realpath "$2")" ]; then
+	# TODO: message only appropriate if $2 is actually a symlink
+	echo "removing "$(realpath -s "$1")" would break "$(realpath -s "$2")" -> $(realpath "$2")"
+	exit 1
+fi
+
+diff -sq "$1" "$2" && rm -i "$1" && ln -vs "$2" "$1"

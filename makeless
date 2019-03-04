@@ -1,0 +1,51 @@
+#!/bin/bash
+
+rdfd=${2:-3}
+wrfd=${3:-$(($rdfd+1))}
+
+if [[ -z $1 ]]; then
+	echo "Usage: $0 <pid>";
+	exit 1;
+fi
+
+exe="$(realpath -eq /proc/$1/exe)"
+if [ -z "${exe}" ]; then
+	echo "error: no such pid or fd";
+	exit 1;
+fi
+
+exe_expect="$(realpath "$(which make)")"
+if [[ "${exe}" != "${exe_expect}" ]]; then
+	echo "error: pid $1 is ${exe}, not ${exe_expect}";
+	exit 1;
+fi
+
+rdpipe="$(readlink /proc/$1/fd/$rdfd)"
+if [[ "$(readlink /proc/$1/fd/$rdfd)" != pipe:* ]]; then
+	echo "error: fd $rdfd is not a pipe; is this a parallel make?"
+	exit 1;
+fi
+
+wrpipe="$(readlink /proc/$1/fd/$wrfd)"
+if [[ "$(readlink /proc/$1/fd/$wrfd)" != pipe:* ]]; then
+	echo "error: fd $wrfd is not a pipe; is this a parallel make?"
+	exit 1;
+fi
+
+if [[ "${rdpipe}" != "${wrpipe}" ]]; then
+	echo "error: fd $rdfd and fd $wrfd are not the same pipe; is this a parallel make?"
+	exit 1;
+fi
+
+echo "Waiting for token to steal..."
+if ! read -n1 c < /proc/$1/fd/$rdfd; then
+	echo "error: failed to steal token"
+	exit 1;
+fi
+
+if [ "x$c" != "x+" ]; then
+	echo "warning: got a $c, not a +";
+fi
+
+# TODO: show actual process name
+echo "Successfully stole a jobserver token from make $1";

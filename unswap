@@ -1,0 +1,5 @@
+#!/bin/bash
+
+SWAPPART=${1:-/dev/sda4}
+
+swapoff ${SWAPPART} && swapon ${SWAPPART}
