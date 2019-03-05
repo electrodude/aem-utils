@@ -11,6 +11,7 @@ if [ "$#" -gt 0 ]; then
 		unswap_single "$swapdev"
 	done
 else
+	# TODO: IFS="\t" or something
 	(read ; while read swapdev type size used prio; do
 		if [ "$used" -gt 0 ]; then
 			unswap_single "$swapdev"

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+[[ "$(stat -c%D:%i $(readlink -f $1))" == "$(stat -c%D:%i $(readlink -f $2))" ]]
