@@ -46,3 +46,9 @@ For each specified swap device, or, if none are specified on the command line,
 for each swap device in /proc/swaps, calls `swapoff` and then `swapon`.  Useful
 for loading swapped-out pages back into RAM after recovering from a low-memory
 condition.
+
+## `uniqfiles`
+
+Filter a list of filenames, removing files with content identical to a file already seen.
+
+Uses newline as delimiter.  Will choke on filenames containing newlines.

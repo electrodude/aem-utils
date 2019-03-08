@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# xargs -d\\n: deal with spaces in filenames
+xargs -d\\n sha256sum | perl -ne '/^([0-9a-f]{64}) [ *](.*)$/; print "$2\n" unless $mem{$1}++'
