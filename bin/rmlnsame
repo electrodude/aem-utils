@@ -8,4 +8,4 @@ if [ "$(realpath -s "$1")" = "$(realpath "$2")" ]; then
 	exit 1
 fi
 
-diff -sq "$1" "$2" && rm -i "$1" && ln -vs "$2" "$1"
+diff -sq "$1" "$2" && rm -i "$1" && ln -vrs "$2" "$1"
