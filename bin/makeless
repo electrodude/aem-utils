@@ -21,13 +21,13 @@ if [[ "${exe}" != "${exe_expect}" ]]; then
 fi
 
 rdpipe="$(readlink /proc/$1/fd/$rdfd)"
-if [[ "$(readlink /proc/$1/fd/$rdfd)" != pipe:* ]]; then
+if [[ "${rdpipe}" != pipe:* ]]; then
 	echo "error: fd $rdfd is not a pipe; is this a parallel make?"
 	exit 1;
 fi
 
 wrpipe="$(readlink /proc/$1/fd/$wrfd)"
-if [[ "$(readlink /proc/$1/fd/$wrfd)" != pipe:* ]]; then
+if [[ "${wrpipe}" != pipe:* ]]; then
 	echo "error: fd $wrfd is not a pipe; is this a parallel make?"
 	exit 1;
 fi
