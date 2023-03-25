@@ -1,3 +1,26 @@
 #!/bin/bash
 
-    cp -vn "$1" "$2" && cp -v "${HOME}/.vim/undo/$(realpath "$1" | sed -e 's/\//%/g')" "${HOME}/.vim/undo/$(realpath "$2" | sed -e 's/\//%/g')" && git add $2
+set -eu
+
+vim_undopath() {
+	echo "$HOME/.vim/undo/$(realpath "$1" | sed -e 's:/:%:g')"
+}
+
+mode= sha= subpath=
+# Find entry not in stage
+while read _mode _sha _stage _subpath ; do
+	echo "$_mode,$_sha,$_stage,$_subpath" >&2
+	if [ "$_stage" = "0" ]; then
+		mode="$_mode"
+		sha="$_sha"
+		subpath="$_subpath"
+		break
+	fi
+done <<< "$(git ls-files --stage -- "$1")"
+echo "final: $mode,$sha,$subpath" >&2
+
+cp -vn "$1" "$2"
+cp -vi "$(vim_undopath "$1")" "$(vim_undopath "$2")"
+
+subprefix="$(git rev-parse --show-prefix)"
+git update-index --add --cacheinfo $mode,$sha,"$subprefix$2"

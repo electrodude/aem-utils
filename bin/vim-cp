@@ -1,3 +1,10 @@
 #!/bin/bash
 
-    cp -vn "$1" "$2" && cp -v "${HOME}/.vim/undo/$(realpath "$1" | sed -e 's/\//%/g')" "${HOME}/.vim/undo/$(realpath "$2" | sed -e 's/\//%/g')"
+set -eu
+
+vim_undopath() {
+	echo "$HOME/.vim/undo/$(realpath "$1" | sed -e 's:/:%:g')"
+}
+
+cp -vn "$1" "$2"
+cp -vi "$(vim_undopath "$1")" "$(vim_undopath "$2")"

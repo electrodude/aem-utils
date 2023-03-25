@@ -1,3 +1,10 @@
 #!/bin/bash
 
-    mv -vn "$1" "$2" && mv -v "${HOME}/.vim/undo/$(realpath "$1" | sed -e 's/\//%/g')" "${HOME}/.vim/undo/$(realpath "$2" | sed -e 's/\//%/g')"
+set -eu
+
+vim_undopath() {
+	echo "$HOME/.vim/undo/$(realpath "$1" | sed -e 's:/:%:g')"
+}
+
+mv -vn "$1" "$2"
+mv -vi "$(vim_undopath "$1")" "$(vim_undopath "$2")"
