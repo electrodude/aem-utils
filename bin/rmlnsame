@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# TODO: just make link if [ ! -e "$1" ]
+set -eu -o pipefail
 
-if [ "$(realpath -s "$1")" = "$(realpath "$2")" ]; then
+# TODO: just make link if [[ ! -e "$1" ]]
+
+if [[ "$(realpath -s "$1")" = "$(realpath "$2")" ]]; then
 	# TODO: message only appropriate if $2 is actually a symlink
-	echo "removing "$(realpath -s "$1")" would break "$(realpath -s "$2")" -> $(realpath "$2")"
+	echo >&2 "removing "$(realpath -s "$1")" would break "$(realpath -s "$2")" -> $(realpath "$2")"
 	exit 1
 fi
 

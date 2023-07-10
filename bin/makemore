@@ -1,45 +1,47 @@
 #!/bin/bash
 
+set -eu -o pipefail
+
 rdfd=${2:-3}
 wrfd=${3:-$(($rdfd+1))}
 
 if [[ -z $1 ]]; then
-	echo "Usage: $0 <pid>";
-	exit 1;
+	echo >&2 "Usage: $0 <pid>"
+	exit 1
 fi
 
 exe="$(realpath -eq /proc/$1/exe)"
-if [ -z "${exe}" ]; then
-	echo "error: no such pid or fd";
-	exit 1;
+if [[ -z "$exe" ]]; then
+	echo >&2 "error: no such pid"
+	exit 1
 fi
 
 exe_expect="$(realpath "$(which make)")"
-if [[ "${exe}" != "${exe_expect}" ]]; then
-	echo "error: pid $1 is ${exe}, not ${exe_expect}";
-	exit 1;
+if [[ "$exe" != "$exe_expect" ]]; then
+	echo >&2 "error: pid $1 is $exe, not $exe_expect"
+	exit 1
 fi
 
 rdpipe="$(readlink /proc/$1/fd/$rdfd)"
-if [[ "${rdpipe}" != pipe:* ]]; then
-	echo "error: fd $rdfd is not a pipe; is this a parallel make?"
-	exit 1;
+if [[ "$rdpipe" != pipe:* ]]; then
+	echo >&2 "error: fd $rdfd is not a pipe; is this a parallel make?"
+	exit 1
 fi
 
 wrpipe="$(readlink /proc/$1/fd/$wrfd)"
-if [[ "${wrpipe}" != pipe:* ]]; then
-	echo "error: fd $wrfd is not a pipe; is this a parallel make?"
-	exit 1;
+if [[ "$wrpipe" != pipe:* ]]; then
+	echo >&2 "error: fd $wrfd is not a pipe; is this a parallel make?"
+	exit 1
 fi
 
-if [[ "${rdpipe}" != "${wrpipe}" ]]; then
-	echo "error: fd $rdfd and fd $wrfd are not the same pipe; is this a parallel make?"
-	exit 1;
+if [[ "$rdpipe" != "$wrpipe" ]]; then
+	echo >&2 "error: fd $rdfd and fd $wrfd are not the same pipe; is this a parallel make?"
+	exit 1
 fi
 
 if ! echo -n '+' > /proc/$1/fd/$wrfd; then
-	exit 1;
+	exit 1
 fi
 
 # TODO: show actual process name
-echo "Successfully injected a jobserver token into make $1";
+echo >&2 "Successfully injected a jobserver token into make $1"

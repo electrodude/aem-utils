@@ -1,19 +1,19 @@
 #!/bin/bash
 
-set -e
+set -eu -o pipefail
 
 unswap_single() {
 	swapoff -v "$1" && swapon -v "$1"
 }
 
-if [ "$#" -gt 0 ]; then
+if [[ "$#" -gt 0 ]]; then
 	for swapdev in "$@"; do
 		unswap_single "$swapdev"
 	done
 else
 	# TODO: IFS="\t" or something
-	(read ; while read swapdev type size used prio; do
-		if [ "$used" -gt 0 ]; then
+	(read ; while read -r swapdev type size used prio; do
+		if [[ "$used" -gt 0 ]]; then
 			unswap_single "$swapdev"
 		fi
 	done) < /proc/swaps

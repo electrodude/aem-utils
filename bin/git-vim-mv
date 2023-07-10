@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -eu -o pipefail
 
 vim_undopath() {
 	echo "$HOME/.vim/undo/$(realpath "$1" | sed -e 's:/:%:g')"
@@ -8,16 +8,16 @@ vim_undopath() {
 
 mode= sha= subpath=
 # Find entry not in stage
-while read _mode _sha _stage _subpath ; do
-	echo "$_mode,$_sha,$_stage,$_subpath" >&2
-	if [ "$_stage" = "0" ]; then
+while read -r _mode _sha _stage _subpath ; do
+	echo >&2 "$_mode,$_sha,$_stage,$_subpath"
+	if [[ "$_stage" = "0" ]]; then
 		mode="$_mode"
 		sha="$_sha"
 		subpath="$_subpath"
 		break
 	fi
 done <<< "$(git ls-files --stage -- "$1")"
-echo "final: $mode,$sha,$subpath" >&2
+echo >&2 "final: $mode,$sha,$subpath"
 
 mv -vn "$1" "$2"
 mv -vi "$(vim_undopath "$1")" "$(vim_undopath "$2")"
