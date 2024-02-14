@@ -2,9 +2,19 @@
 
 set -eu -o pipefail
 
+src="$1"
+dst="$2"
+
+# TODO: Derive from $0
+cmd=cp
+
 vim_undopath() {
-	echo "$HOME/.vim/undo/$(realpath "$1" | sed -e 's:/:%:g')"
+	echo "$HOME/.vim/undo/$(realpath -- "$1" | sed -e 's:/:%:g')"
 }
+
+if [[ -d "$dst" ]]; then
+	dst="$dst/$(basename -- "$src")"
+fi
 
 mode= sha= subpath=
 # Find entry not in stage
@@ -16,11 +26,11 @@ while read -r _mode _sha _stage _subpath ; do
 		subpath="$_subpath"
 		break
 	fi
-done <<< "$(git ls-files --stage -- "$1")"
+done <<< "$(git ls-files --stage -- "$src")"
 echo >&2 "final: $mode,$sha,$subpath"
 
-cp -vn "$1" "$2"
-cp -vi "$(vim_undopath "$1")" "$(vim_undopath "$2")"
+"$cmd" -vnT "$src" "$dst"
+"$cmd" -viT "$(vim_undopath "$src")" "$(vim_undopath "$dst")"
 
 subprefix="$(git rev-parse --show-prefix)"
-git update-index --add --cacheinfo $mode,$sha,"$subprefix$2"
+git update-index --add --cacheinfo $mode,$sha,"$subprefix$dst"

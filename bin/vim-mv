@@ -2,9 +2,19 @@
 
 set -eu -o pipefail
 
+src="$1"
+dst="$2"
+
+# TODO: Derive from $0
+cmd=mv
+
 vim_undopath() {
-	echo "$HOME/.vim/undo/$(realpath "$1" | sed -e 's:/:%:g')"
+	echo "$HOME/.vim/undo/$(realpath -- "$1" | sed -e 's:/:%:g')"
 }
 
-mv -vn "$1" "$2"
-mv -vi "$(vim_undopath "$1")" "$(vim_undopath "$2")"
+if [[ -d "$dst" ]]; then
+	dst="$dst/$(basename -- "$src")"
+fi
+
+"$cmd" -vnT "$src" "$dst"
+"$cmd" -viT "$(vim_undopath "$src")" "$(vim_undopath "$dst")"
